@@ -2,7 +2,15 @@
 
 \## Skills
 
-Git
+\-Git
 
-R
+
+
+\-R
+
+
+
+\-Tableau
+
+
 
