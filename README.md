@@ -1,2 +1,8 @@
-# business_intelligence
-Initial commit: Add README
+# business\_intelligence
+
+\## Skills
+
+Git
+
+R
+
