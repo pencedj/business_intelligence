@@ -44,13 +44,28 @@ jobs = postings |>
   dplyr::mutate(dplyr::across(dplyr::ends_with("_at"), as.Date),
                 days_open = as.numeric(last_seen_at - posted_at))
 
+jobs
+
 jobs |>
   # I want to move UOA being a job postibg to category
   dplyr::group_by(category)|>
   dplyr::summarize(postings = dplyr::n(), remote_share = mean(remote))
+
+# Among full-time postings, which states have the highest remote share? (Deviation from answers in the slides)
+
+jobs |>
+  dplyr::group_by(category, location_state) |>
+  dplyr::summarise(
+    postings = dplyr::n(),
+    remote_share = mean(remote)
+  ) |>
+  dplyr::arrange(dplyr::desc(remote_share)) |>
+  na.omit()
+
+
 ```
 
-jobs
+
 
 # Q1: Which cat is remote friendly?
 ## Find the number of jobs per category
