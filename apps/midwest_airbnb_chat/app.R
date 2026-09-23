@@ -9,7 +9,7 @@ qc = querychat::querychat(
   con, "listings",
   client             = client,
   tools              = c("filter", "query", "visualize"),
-  greeting           = "Ask me about 14,887 Airbnb listings in Chicago, Columbus, and the Twin Cities.",
+  greeting           = "Ask me in plain English about 14,887 Airbnb listings in Chicago, Columbus, and the Twin Cities.",
   data_description   = "data/data_desc.md",
   extra_instructions = "data/extra_instructions.md"
 )
