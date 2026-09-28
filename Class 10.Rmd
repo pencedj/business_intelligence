@@ -1,0 +1,75 @@
+---
+title: "Class 10"
+date: "2026-09-28"
+output:
+  html_document:
+    toc: true
+
+  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## robots.txt example: MU Bulliten
+
+# Need to make sure program scrapes the page
+
+```{r bulletin}
+robotstxt::paths_allowed(
+  paths = "courses-instructions/isa/",
+  domain = "https://bulletin.miamioh.edu/"
+)
+
+robotstxt::paths_allowed(
+  paths =  "/wiki/Miami_RedHawks_football",
+  domain = "en.wikipedia.org")
+
+# In some cases, the robot.txt provides an inconsistent answer
+# Typically, you get a warning with the answer (incorrect)
+# Get rid of the trailing slash at the end to get rid of it
+robotstxt::paths_allowed(
+  paths =  "/jobs/",
+  domain = "www.linkedin.com")
+
+
+robotstxt::paths_allowed(
+  paths =  "/jobs",
+  domain = "www.indeed.com")
+
+robotstxt::paths_allowed(
+  paths =  "/viewjob",
+  domain = "www.indeed.com")
+```
+
+## Scrape Miami's Bulletin
+
+```{r Miami Bulletin}
+## checking to see if we have permission to scrape
+
+## Load the backend of the HTML into R using rvest::read_html(), sometimes rvest::read_html_live if the page has some dynamic content
+# In some cases, we will craft this as a request as showen in 
+# slides httr2::request() > . . . . >httr2::resp_body_html()
+
+isa_courses_in_r = rvest::read_html("https://bulletin.miamioh.edu/courses-instruction/isa/")
+
+# We will extract the course titles. which we can do in a single pipeline given that they look the same on the rendered webpage in Chrome
+# (bolded, same font size/type, etc.)
+
+# CSS Vector was contained by highlighting course title on wepage, right click inspect, copy, copy selector
+# In this example, we just got the title for ISA 401 because we had this:
+isa_courses_in_r |> 
+  rvest::html_elements("#sc_sccoursedescs > div > p.courseblocktitle > strong") |> 
+   rvest::html_text2() -> isa_titles
+
+# Course descriptions (using selector gaget, which doesn't always work)
+# It's very convenient when it does work
+
+isa_courses_in_r |> 
+  rvest::html_elements("#.courseblockdesc") |> 
+   rvest::html_text2() -> isa_desc
+
+df = data.frame(title = isa_titles, description = isa_desc)
+```
+
