@@ -359,7 +359,10 @@ display: none;
 <li><a href="#robots.txt-example-mu-bulliten" id="toc-robots.txt-example-mu-bulliten">robots.txt example: MU
 Bulliten</a></li>
 <li><a href="#need-to-make-sure-program-scrapes-the-page" id="toc-need-to-make-sure-program-scrapes-the-page">Need to make sure
-program scrapes the page</a></li>
+program scrapes the page</a>
+<ul>
+<li><a href="#scrape-miamis-bulletin" id="toc-scrape-miamis-bulletin">Scrape Miami’s Bulletin</a></li>
+</ul></li>
 </ul>
 </div>
 
@@ -379,7 +382,10 @@ program scrapes the page</a></li>
   domain = &quot;en.wikipedia.org&quot;)</code></pre>
 <pre><code>##  en.wikipedia.org</code></pre>
 <pre><code>## [1] TRUE</code></pre>
-<pre class="r"><code>robotstxt::paths_allowed(
+<pre class="r"><code># In some cases, the robot.txt provides an inconsistent answer
+# Typically, you get a warning with the answer (incorrect)
+# Get rid of the trailing slash at the end to get rid of it
+robotstxt::paths_allowed(
   paths =  &quot;/jobs/&quot;,
   domain = &quot;www.linkedin.com&quot;)</code></pre>
 <pre><code>##  www.linkedin.com</code></pre>
@@ -394,6 +400,34 @@ program scrapes the page</a></li>
   domain = &quot;www.indeed.com&quot;)</code></pre>
 <pre><code>##  www.indeed.com</code></pre>
 <pre><code>## [1] FALSE</code></pre>
+<div id="scrape-miamis-bulletin" class="section level2">
+<h2>Scrape Miami’s Bulletin</h2>
+<pre class="r"><code>## checking to see if we have permission to scrape
+
+## Load the backend of the HTML into R using rvest::read_html(), sometimes rvest::read_html_live if the page has some dynamic content
+# In some cases, we will craft this as a request as showen in 
+# slides httr2::request() &gt; . . . . &gt;httr2::resp_body_html()
+
+isa_courses_in_r = rvest::read_html(&quot;https://bulletin.miamioh.edu/courses-instruction/isa/&quot;)
+
+# We will extract the course titles. which we can do in a single pipeline given that they look the same on the rendered webpage in Chrome
+# (bolded, same font size/type, etc.)
+
+# CSS Vector was contained by highlighting course title on wepage, right click inspect, copy, copy selector
+# In this example, we just got the title for ISA 401 because we had this:
+isa_titles &lt;- isa_courses_in_r |&gt;
+  rvest::html_elements(&quot;p.courseblocktitle strong&quot;) |&gt;
+  rvest::html_text2()
+
+isa_desc &lt;- isa_courses_in_r |&gt;
+  rvest::html_elements(&quot;.courseblockdesc&quot;) |&gt;
+  rvest::html_text2()
+
+df &lt;- data.frame(
+  title = isa_titles,
+  description = isa_desc
+)</code></pre>
+</div>
 </div>
 
 

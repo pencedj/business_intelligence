@@ -59,17 +59,19 @@ isa_courses_in_r = rvest::read_html("https://bulletin.miamioh.edu/courses-instru
 
 # CSS Vector was contained by highlighting course title on wepage, right click inspect, copy, copy selector
 # In this example, we just got the title for ISA 401 because we had this:
-isa_courses_in_r |> 
-  rvest::html_elements("#sc_sccoursedescs > div > p.courseblocktitle > strong") |> 
-   rvest::html_text2() -> isa_titles
+isa_titles <- isa_courses_in_r |>
+  rvest::html_elements("p.courseblocktitle strong") |>
+  rvest::html_text2()
 
-# Course descriptions (using selector gaget, which doesn't always work)
-# It's very convenient when it does work
+isa_desc <- isa_courses_in_r |>
+  rvest::html_elements(".courseblockdesc") |>
+  rvest::html_text2()
 
-isa_courses_in_r |> 
-  rvest::html_elements("#.courseblockdesc") |> 
-   rvest::html_text2() -> isa_desc
+df <- data.frame(
+  title = isa_titles,
+  description = isa_desc
+)
 
-df = data.frame(title = isa_titles, description = isa_desc)
 ```
+
 

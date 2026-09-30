@@ -1,0 +1,93 @@
+---
+title: "Class 11"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections:true
+    code_download: true
+    code_folding: true
+date: "2026-09-30"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Learning objectives
+ Scape multiple wepages from the same site using a for loop approach
+ Enable me to scrape multiple webpages rom teh same site using the [purr] package which is a functional programming approach (we create our own function in this process)
+ 
+## Re-examine the bulletin example
+
+Try to expand on the example form last class to include the following:
+
+[ACC](https://bulletin.miamioh.edu/courses-instruction/acc/),
+[BUS](https://bulletin.miamioh.edu/courses-instruction/bus/),
+[ISA](https://bulletin.miamioh.edu/courses-instruction/isa/), and
+[MKT](https://bulletin.miamioh.edu/courses-instruction/mkt/).
+
+You can repeat your code a few times changing the URL, but it would normally be tedious. We will follow the DRY principle which means Don't Repeat Yourself
+
+```{r bulletin}
+dept_abbrv = c('acc', 'bus', 'isa', 'mkt')
+courses_df = data.frame() # Initializing conytainedto store stuff from the loop
+for (abbrv in dept_abbrv) {
+  cat(rep("-", 50), "\n")
+  print(abbrv)
+  bulletin_url = paste0('https://bulletin.miamioh.edu/courses-instruction/', abbrv, '/')
+# Made the webpage an R object because we're gonna be using it several times while only changng the URL
+webpage = rvest::read_html(bulletin_url)
+
+webpage |> rvest::html_elements("p.courseblocktitle") |> rvest::html_text2() -> titles
+webpage |> rvest::html_elements("p.courseblockdesc") |> rvest::html_text2() -> descs
+
+df = data.frame(title = titles, desc = descs)
+print(df$title[1:2])
+courses_df = rbind(courses_df,df)
+}
+
+```
+
+## purrr approach for same problem
+
+This is a functional programming appraoch, and we will write our own function. In R, we use the function called 'function' to create a function. R functions return a single object
+
+```{r purrr}
+dept_abbrv = c('acc', 'bus', 'isa', 'mkt')
+
+# TS function takes an abbrv as an input and returned a data_frame as an output
+scrape_my_bulletin = function(abbrv){
+  bulletin_url = paste0('https://bulletin.miamioh.edu/courses-instruction/', abbrv, '/')
+# Made the webpage an R object because we're gonna be using it several times while only changng the URL
+webpage = rvest::read_html(bulletin_url)
+
+webpage |> rvest::html_elements("p.courseblocktitle") |> rvest::html_text2() -> titles
+webpage |> rvest::html_elements("p.courseblockdesc") |> rvest::html_text2() -> descs
+
+df = data.frame(title = titles, desc = descs)
+return(df)
+}
+
+test = scrape_my_bulletin(abbrv = 'eco')
+
+# To use function from purrr, we will use a map_*() or a map2_*() or a pmap_*()
+# map uses a function that takes a single input (or you're changing a single input)
+# map2 uses a function that takes 2 inputs
+# pmap >= 3
+# after the _, you put the type of object you are getting back
+
+# The .x is the vector that we will iterate over and the .f is the function we use
+courses_df_from_purr = purrr::map_df(.x = dept_abbrv, .f = scrape_my_bulletin )
+
+```
+
+
+## Scrape data from the website <https://www.planecrashinfo.com/> and it has a database of plane crashed by year
+
+```{r}
+year = 2025
+crash_url = paste0('https://www.planecrashinfo.com/', year, '/', year, '.htm')
+crash_page = rvest::read_html(crash_url)
+```
+
