@@ -122,7 +122,7 @@ twin_reviews = listings |>
   ) |>
   dplyr::group_by(month) |>
   dplyr::summarise(
-    total_reviews = sum(number_of_reviews, na.rm = TRUE)
+    total_reviews = sum(reviews, na.rm = TRUE)
   )
 
 busiest_month = twin_reviews |>

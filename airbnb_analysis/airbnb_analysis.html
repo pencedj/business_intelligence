@@ -500,7 +500,7 @@ round(chicago_percent, 1)</code></pre>
   ) |&gt;
   dplyr::group_by(month) |&gt;
   dplyr::summarise(
-    total_reviews = sum(number_of_reviews, na.rm = TRUE)
+    total_reviews = sum(reviews, na.rm = TRUE)
   )
 
 busiest_month = twin_reviews |&gt;
@@ -514,9 +514,9 @@ busiest_month</code></pre>
 <pre><code>## # A tibble: 1 × 2
 ##   month   total_reviews
 ##   &lt;chr&gt;           &lt;int&gt;
-## 1 2025-08        250786</code></pre>
+## 1 2025-08          7399</code></pre>
 <pre class="r"><code>round(review_ratio, 2)</code></pre>
-<pre><code>## [1] 1.39</code></pre>
+<pre><code>## [1] 2.37</code></pre>
 <div id="task-8" class="section level2">
 <h2>Task 8</h2>
 <pre class="r"><code>listings |&gt;
@@ -578,6 +578,77 @@ results</code></pre>
 ## 1 Chicago         31.8     40.7
 ## 2 Columbus        36.5     36.1
 ## 3 Twin Cities     16.9     40.3</code></pre>
+</div>
+<div id="findings" class="section level2">
+<h2>5 Findings</h2>
+<pre class="r"><code>## Which city has the highest median nightly price? : Chicago with $235.50
+
+listings |&gt;
+  dplyr::group_by(city) |&gt;
+  dplyr::summarise(
+    median_price = median(price, na.rm = TRUE)
+  ) |&gt;
+  dplyr::arrange(dplyr::desc(median_price))</code></pre>
+<pre><code>## # A tibble: 3 × 2
+##   city        median_price
+##   &lt;chr&gt;              &lt;dbl&gt;
+## 1 Chicago             236.
+## 2 Twin Cities         222.
+## 3 Columbus            182.</code></pre>
+<pre class="r"><code>## Which city has the highest average rating?: Twin cities, 4.82
+
+listings |&gt;
+  dplyr::group_by(city) |&gt;
+  dplyr::summarise(
+    average_rating = mean(review_scores_rating, na.rm = TRUE)
+  ) |&gt;
+  dplyr::arrange(dplyr::desc(average_rating))</code></pre>
+<pre><code>## # A tibble: 3 × 2
+##   city        average_rating
+##   &lt;chr&gt;                &lt;dbl&gt;
+## 1 Twin Cities           4.83
+## 2 Chicago               4.78
+## 3 Columbus              4.78</code></pre>
+<pre class="r"><code>## What percenateg of listings are entire homes?: Columbus, 82.6%
+
+listings |&gt;
+  dplyr::group_by(city) |&gt;
+  dplyr::summarise(
+    percent_entire_home = mean(room_type == &quot;Entire home/apt&quot;) * 100
+  )</code></pre>
+<pre><code>## # A tibble: 3 × 2
+##   city        percent_entire_home
+##   &lt;chr&gt;                     &lt;dbl&gt;
+## 1 Chicago                    77.0
+## 2 Columbus                   82.6
+## 3 Twin Cities                77.8</code></pre>
+<pre class="r"><code>## Which city has the most listings that can accomodate 6 or more people?: Twin Cities, 42.33%
+listings |&gt;
+  dplyr::group_by(city) |&gt;
+  dplyr::summarise(
+    percent_6_plus = mean(accommodates &gt;= 6) * 100
+  ) |&gt;
+  dplyr::arrange(dplyr::desc(percent_6_plus))</code></pre>
+<pre><code>## # A tibble: 3 × 2
+##   city        percent_6_plus
+##   &lt;chr&gt;                &lt;dbl&gt;
+## 1 Twin Cities           42.3
+## 2 Columbus              40.5
+## 3 Chicago               33.4</code></pre>
+<pre class="r"><code>## Which city has the highest median reviews per month?: Chicago, 1.73
+
+listings |&gt;
+  dplyr::group_by(city) |&gt;
+  dplyr::summarise(
+    median_reviews_per_month = median(reviews_per_month, na.rm = TRUE)
+  ) |&gt;
+  dplyr::arrange(dplyr::desc(median_reviews_per_month))</code></pre>
+<pre><code>## # A tibble: 3 × 2
+##   city        median_reviews_per_month
+##   &lt;chr&gt;                          &lt;dbl&gt;
+## 1 Chicago                         1.73
+## 2 Columbus                        1.62
+## 3 Twin Cities                     1.26</code></pre>
 </div>
 </div>
 
