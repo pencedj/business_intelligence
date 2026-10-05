@@ -1,0 +1,93 @@
+---
+title: "Class 12"
+html_document:
+  toc: true
+  toc_float: true
+  number_sections: true
+  code_download: true
+  code_folding: show
+date: "2026-10-05"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Continuing with the plane crash example
+
+```{r crashes}
+year = 2025
+
+crash_url = paste0('https://www.planecrashinfo.com/', year, '/', year, '.htm')
+
+crash_page <- rvest::read_html(crash_url, encoding = "ISO-8859-1")
+
+# This should now print without the error
+crash_page
+
+crash_tables <- crash_page |>
+  rvest::html_elements("table") |>
+  rvest::html_table()
+crash_tables
+
+
+# From cleaning perspective, we must:
+# Translate this into a df
+crash_df = crash_tables[[1]] # subsetting of a list
+
+# Replace the current headrs wh row 1 and delete row 1
+colnames(crash_df) = crash_df[1, ]
+crash_df = crash_df[-1, ]
+# Convert date into a date column instead of chr
+crash_df = crash_df |> 
+  dplyr::mutate(Date = lubridate::dmy(Date))
+
+dplyr::glimpse(crash_df)
+# More complex cleaning to split muktiple information within a cell into seperate columns
+```
+
+# Game
+
+```{r Game}
+## Question 1
+
+page = rvest::read_html("https://isa401-salvage.vercel.app/registry?start=1")
+classes = page |>
+  rvest::html_elements(".Dreadnought") |>
+  rvest::html_text2()
+length(classes)
+
+## Question 3
+
+base <- "https://isa401-salvage.vercel.app"
+
+starts <- seq(from = 1, to = 351, by = 50)
+pages <- vector("list", length(starts))
+
+for (i in seq_along(starts)) {
+  pg <- rvest::read_html(
+    paste0(base, "/registry?start=", starts[i])
+  )
+
+  pages[[i]] <- data.frame(
+    class = pg |>
+      rvest::html_elements("div > ul > li:nth-child(1) > span") |>
+      rvest::html_text2(),
+
+    value = pg |>
+      rvest::html_elements("div > ul > li:nth-child(3) > span") |>
+      rvest::html_text2() |>
+      readr::parse_number()
+  )
+
+  Sys.sleep(1)
+}
+
+registry <- dplyr::bind_rows(pages)
+
+dreadnought_df = registry |> 
+  dplyr::filter(class == "Dreadnought")
+
+sum(dreadnought_df$value)
+```
+
