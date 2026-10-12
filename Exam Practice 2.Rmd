@@ -1,0 +1,38 @@
+---
+title: "Exam Practice 2"
+output: html_document
+date: "2026-10-10"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+lst = list( 
+  gdp = data.frame(year = c(2020, 2021, 2022), values = c(19200, 20500, 21300), units = "USD billions" ),
+  population = list(country = "United States", year = c(2020, 2021, 2022), values = c(325, 331, 335), units = "millions"),
+  indicators = c("gdp", "population", "inflation"), # Available indicators
+  inflation_rate = 3.2 # Latest inflation rate as a single value
+)
+
+lst[[2]]
+
+library(jsonlite)
+hibp <- jsonlite::fromJSON("data/hibp_data (1).json")
+hibp[500,]
+sum(hibp[1])
+library(dplyr)
+library(stringr)
+
+# Count total matching rows directly:
+sum(str_detect(hibp$Email, "miamioh\\.edu$"))
+
+library(robotstxt)
+
+# Pass the page URL you want to scrape:
+paths_allowed("https://en.wikipedia.org/wiki/Miami_University")
+
+url = "library(robotstxt)
+
+# Pass the page URL you want to scrape:
+paths_allowed("https://en.wikipedia.org/wiki/Miami_University")

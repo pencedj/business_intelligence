@@ -1,0 +1,145 @@
+---
+title: "Exam Practice 2"
+output: html_document
+date: "2026-10-10"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+url = ("https://miamioh.edu/policy-library/students/undergraduate/academic-regulations/")
+library(rvest)
+library(stringr)
+mu_policies = url %>% rvest::read_html() %>% rvest::html_elements('.news-lockup__body-link') %>% rvest::html_attr('href')
+mu_policies
+```
+```{r}
+'https://miamiredhawks.com/sports/swimming-and-diving/roster' |> 
+  rvest::read_html() -> page
+
+page |> 
+  rvest::html_elements('div > a > h3') |> 
+  rvest::html_text2() -> name
+
+page %>% 
+  rvest::html_elements("span.s-person-card__content__person__location-item.flex.items-center") %>% 
+  rvest::html_text2() -> town
+
+swim_df = data.frame(name[1:52], town)
+```
+
+
+```{r}
+toxic_ips = readr::read_csv("data/toxic_ips_oct2025.csv")
+```
+
+
+lst = list( 
+  gdp = data.frame(year = c(2020, 2021, 2022), values = c(19200, 20500, 21300), units = "USD billions" ),
+  population = list(country = "United States", year = c(2020, 2021, 2022), values = c(325, 331, 335), units = "millions"),
+  indicators = c("gdp", "population", "inflation"), # Available indicators
+  inflation_rate = 3.2 # Latest inflation rate as a single value
+)
+
+lst[[2]]
+
+hibp = jsonlite::fromJSON("data/hibp_data (1)")
+
+ohio_df = fred_reply$observations |>
+  dplyr::select(date, value) |>
+  dplyr::mutate(
+    date = as.Date(date),
+    value = as.numeric(value)
+  )
+
+```{r}
+hibp = jsonlite::fromJSON("../data/hibp_data.json (1)")
+
+hibp[500,]
+
+hibp %>% 
+  dplyr::filter($Email)
+
+hibp |>
+  dplyr::filter(
+    stringr::str_detect(Email, "@miamioh.edu")
+  ) |>
+  nrow()
+
+robotstxt::paths_allowed("https://en.wikipedia.org/wiki/Miami_University")
+```
+```{r}
+library(tidyverse)
+
+mu_policy = 
+  rvest::read_html("https://miamioh.edu/policy-library/students/undergraduate/academic-regulations/") %>% 
+  rvest::html_elements(".news-lockup__body-link") %>% 
+  rvest::html_attr("href") -> mu_policies
+
+url = "https://miamiredhawks.com/sports/swimming-and-diving/roster"
+
+divers =
+  rvest::read_html(url) |>
+  rvest::html_elements("div > a > h3") |>
+  rvest::html_text2()
+
+origin = 
+  rvest::read_html(url) |>
+  rvest::html_elements("span.s-person-card__content__person__location-item.flex.items-center") |>
+  rvest::html_text2()
+
+
+divers_df = data.frame(name = divers[1:52], town = origin)
+
+ips = read.csv("../data/toxic_ips_oct2025.csv")
+ips$IP
+ip_api = function(x) {
+
+  paste0(
+    "http://ip-api.com/json/", x,
+    "?fields=status,continent,country,countryCode,region,regionName,city,district,zip,lat,lon,timezone,currency,isp,org,as,query"
+  ) |>
+    jsonlite::fromJSON() -> response
+
+  response |> as.data.frame() -> ip_df
+
+  return(ip_df)
+}
+
+endowment = read.csv("../data/ntse_endowment_us_and_canada_2020.csv")
+
+head(endowment)
+
+
+
+dplyr::glimpse(endowment)
+
+
+df = df |>
+  dplyr::mutate(
+    id = as.character(id),
+    hbcu_indicator = as.factor(hbcu_indicator),
+    carnegie_category = as.factor(carnegie_category)
+  )
+
+ips = read.csv("../data/toxic_ips_oct2025.csv")
+ips$IP
+ip_api = function(x) {
+
+  paste0(
+    "http://ip-api.com/json/", x,
+    "?fields=status,continent,country,countryCode,region,regionName,city,district,zip,lat,lon,timezone,currency,isp,org,as,query"
+  ) |>
+    jsonlite::fromJSON() -> response
+
+  response |> as.data.frame() -> ip_df
+
+  return(ip_df)
+}
+
+head(ip_df)
+
+```
+

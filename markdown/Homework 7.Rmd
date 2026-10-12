@@ -1,0 +1,61 @@
+---
+title: "Homework 7"
+output: html_document
+date: "2026-10-05"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(rvest)
+```
+
+
+```{r Department Information Aggregation}
+
+dept = c(
+  "Accountancy",
+  "Economics",
+  "Entrepreneurship",
+  "Finance",
+  "Information%20Systems%20--%20Analytics",
+  "Marketing",
+  "Management"
+)
+
+courses_df = data.frame()
+
+for (dept_name in dept) {
+  
+  directory_url = paste0(
+    "https://miamioh.edu/fsb/directory/?up=/query/all/all/",
+    dept_name,
+    "/all"
+  )
+  
+  webpage = rvest::read_html(directory_url)
+  
+  department = webpage %>% rvest::html_elements("tr > td:nth-child(1)") %>% rvest::html_text2()
+  name = webpage %>% rvest::html_elements("tr > td:nth-child(3) > strong > a") %>% rvest::html_text2()
+  position = webpage %>% rvest::html_elements("tr > td:nth-child(3) > i") %>% rvest::html_text2()
+  website = webpage %>% rvest::html_elements("tr> td:nth-child(3) > strong > a") %>% rvest::html_attr("href")
+  
+  df = data.frame(department = department, name = name, position = position, website = website)
+  
+  df = df %>% dplyr::filter(department %in% c("Accountancy",
+  "Economics",
+  "Entrepreneurship",
+  "Finance",
+  "Information%20Systems%20--%20Analytics",
+  "Marketing",
+  "Management"))
+  
+  courses_df = rbind(courses_df, df)}
+  
+head(courses_df)
+
+```
+
+```
+
+```
+

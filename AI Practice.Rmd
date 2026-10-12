@@ -1,0 +1,132 @@
+---
+title: "AI Helper"
+output: html_document
+date: "2026-10-10"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(rvest)
+library(dplyr)
+
+url = "https://miamiredhawks.com/sports/swimming-and-diving/roster"
+
+webpage = rvest::read_html(url)
+
+# Select all person cards
+people = webpage |>
+  rvest::html_elements("#listPanel .s-person-card")
+
+# Extract names
+names = people |>
+  rvest::html_element(".s-person-details__personal h3") |>
+  rvest::html_text2()
+
+# Extract hometowns
+locations = people |>
+  rvest::html_element(
+    ".s-person-card__content__person__location-item"
+  ) |>
+  rvest::html_text2()
+
+# Create the data frame
+swim_df = data.frame(
+  name = names,
+  location = locations
+)
+
+# Exclude coaches (whose location is missing)
+swim_df = swim_df |>
+  dplyr::filter(
+    !is.na(name),
+    name != "",
+    !is.na(location),
+    location != ""
+  )
+
+```
+
+
+```{r}
+library(readr)
+library(httr2)
+library(dplyr)
+
+# 1. Read the CSV file
+toxic_ips = readr::read_csv("toxic_ips_oct2025 (1).csv")
+
+# 2. Extract the IP addresses
+ip_addresses = toxic_ips$IP
+
+# 3. Define the 17 required fields
+fields = c(
+  "status", "continent", "country", "countryCode",
+  "region", "regionName", "city", "district",
+  "zip", "lat", "lon", "timezone", "currency",
+  "isp", "org", "as", "query"
+)
+
+# 4. Initialize the output data frame
+ip_df = data.frame()
+
+# 5. Loop through each IP address
+for (ip in ip_addresses) {
+
+  api_url = paste0("http://ip-api.com/json/", ip)
+
+  # Send API request
+  response = httr2::request(api_url) |>
+    httr2::req_url_query(fields = paste(fields, collapse = ",")) |>
+    httr2::req_perform()
+
+  # Convert JSON response to an R list
+  ip_data = httr2::resp_body_json(response)
+
+  # Create one row, keeping missing fields as NA
+  row = lapply(fields, function(field) {
+    value = ip_data[[field]]
+
+    if (is.null(value) || length(value) == 0) {
+      return(NA)
+    }
+
+    value
+  })
+
+  names(row) = fields
+
+  df = as.data.frame(row, check.names = FALSE)
+
+  # Append the row
+  ip_df = dplyr::bind_rows(ip_df, df)
+
+  # Respect API rate limits
+  remaining = as.integer(
+    httr2::resp_header(response, "X-Rl")
+  )
+
+  if (!is.na(remaining) && remaining == 0) {
+    wait = as.numeric(
+      httr2::resp_header(response, "X-Ttl")
+    )
+    if (!is.na(wait)) Sys.sleep(wait + 1)
+  }
+}
+
+# 6. Verify results
+dim(ip_df)
+names(ip_df)
+print(ip_df)
+
+stopifnot(
+  nrow(ip_df) == 10,
+  ncol(ip_df) == 17,
+  identical(names(ip_df), fields),
+  identical(as.character(ip_df$query), ip_addresses),
+  all(ip_df$status == "success")
+)
+```
+
