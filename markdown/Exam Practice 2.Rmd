@@ -143,3 +143,165 @@ head(ip_df)
 
 ```
 
+```{r}
+penguins = readr::read_csv("https://raw.githubusercontent.com/fmegahed/isa401/main/data/penguin_captures.csv")
+
+head(penguins)
+
+penguins |>
+  dplyr::group_by(species) |>
+  dplyr::summarise(
+    penguins = dplyr::n_distinct(band)
+  ) |>
+  dplyr::arrange(dplyr::desc(penguins))
+
+nrow(penguins)
+
+dplyr::n_distinct(penguins$band)
+
+crashes_by_day = c(2020, 2241, 2327, 2285, 2380, "1866", 1664)
+names(crashes_by_day) = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+sum(crashes_by_day > 300)
+
+
+ncse_tbl = readr::read_csv("https://raw.githubusercontent.com/fmegahed/isa401/main/data/ncse_endowment_us_and_canada_2025.csv")
+dplyr::glimpse(ncse_tbl)
+
+jobs |>
+  dplyr::group_by(location_state) |>
+  dplyr::summarise(postings = dplyr::n())
+
+
+library(ellmer)
+
+# 1. Create a chat object
+chat = ellmer::chat_openai(
+  model = "gpt-5.6-luna"
+)
+
+
+# 2. Define the Airbnb listing description
+description <- "This one of a kind, turn of the century, fully restored mansion is just waiting for you to come and enjoy the vast amenities this house offers! This historic Victorian Mansion was built in the last 1800's and has been fully restored and updated with one thing in mind--luxury! We boast a slate pool table, 10 person hot tub, a custom made fire table, a built in giant projector screen for streaming, arcade games, and much much more! We comfortably sleep 19 guests with 9 dedicated bedrooms."
+
+# 3. Define the structured output schema
+schema <- ellmer::type_object(
+  property_type = ellmer::type_string(),
+  max_guests = ellmer::type_integer(),
+  num_bedrooms = ellmer::type_integer(),
+  key_amenities = ellmer::type_string(
+    "List key amenities separated by |"
+  )
+)
+
+# 4. Extract structured information
+result <- chat$chat_structured(
+  description,
+  type = schema
+)
+
+# 5. Display results
+print(result)
+
+Sys.getenv("OPENAI_API_KEY")
+
+
+base = "https://isa401-salvage.vercel.app/exam/registry?start=1"
+
+starts = seq(from = 1, to = 321, by = 40)
+pages = vector("list", length(starts))
+
+for (i in seq_along(starts)) {
+  pg = rvest::read_html(
+    paste0(base, "/registry?start=", starts[i])
+  )
+
+  pages[[i]] = pg |>
+    rvest::html_elements(".Dreadnought") |>
+    rvest::html_text2()
+
+  Sys.sleep(1)
+}
+
+classes = unlist(pages)
+
+classes
+
+page = rvest::read_html("https://isa401-salvage.vercel.app/exam/registry?start=1")
+classes = page |>
+  rvest::html_elements(".Dreadnought") |>
+  rvest::html_text2()
+length(classes)
+
+
+for (i in seq_along(starts)) {
+  pg <- rvest::read_html(
+    paste0(base, "/registry?start=", starts[i])
+  )
+
+  pages[[i]] <- data.frame(
+    class = pg |>
+      rvest::html_elements("div > ul > li:nth-child(1) > span") |>
+      rvest::html_text2(),
+
+    value = pg |>
+      rvest::html_elements("div > ul > li:nth-child(3) > span") |>
+      rvest::html_text2() |>
+      readr::parse_number()
+  )
+
+  Sys.sleep(1)
+}
+
+registry <- dplyr::bind_rows(pages)
+
+
+
+
+
+base = "https://isa401-salvage.vercel.app/exam"
+
+starts = seq(from = 1, to = 321, by = 40)
+pages = vector("list", length(starts))
+
+for (i in seq_along(starts)) {
+  pg = rvest::read_html(
+    paste0(base, "/registry?start=", starts[i])
+  )
+
+  pages[[i]] = pg |>
+    rvest::html_elements("div > ul > li:nth-child(1) > span") |>
+    rvest::html_text2()
+
+  Sys.sleep(1)
+}
+
+classes = unlist(pages)
+
+length(classes)
+
+crashes = jsonlite::fromJSON(
+  "https://data.cincinnati-oh.gov/resource/rvmt-pkmq.json"
+)
+
+dplyr::glimpse(crashes)
+names(crashes)
+head(crashes)
+
+library(httr2)
+
+resp <- request("https://data.cincinnati-oh.gov/resource/rvmt-pkmq.json") |>
+  req_url_query(
+    `$select` = "count(distinct instanceid) AS n",
+    `$where` = "crashdate >= '2026-07-01T00:00:00' AND crashdate < '2026-08-01T00:00:00'"
+  ) |>
+  req_perform() |>
+  resp_body_json()
+
+as.integer(resp[[1]]$n)
+
+
+penguins = readr::read_csv("https://raw.githubusercontent.com/fmegahed/isa401/main/data/penguin_captures.csv")
+
+penguins |>
+  dplyr::group_by(species) |>
+  dplyr::summarise(n = dplyr::n_distinct(band))

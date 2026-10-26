@@ -30,6 +30,8 @@ campus$Farmer$floors[["2"]]$sections
 fsb$floors$`2`$rooms
 
 fsb[[8]]
+
+campus$Farmer$floors[["1"]]$sections
 ```
 
 ## Reading the Excel File

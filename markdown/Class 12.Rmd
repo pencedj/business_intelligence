@@ -144,6 +144,8 @@ isa_df = ellmer::parallel_chat_structured(
   include_cost = T)
 
 sum(isa_df$cost)
+
+Sys.getenv("OPENAI_API_KEY")
   
 ```
 
